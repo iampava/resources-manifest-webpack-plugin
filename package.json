@@ -1,6 +1,6 @@
 {
     "name": "resources-manifest-webpack-plugin",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "description": "Emoji loader for webpack",
     "license": "MIT",
     "main": "plugin.js",
