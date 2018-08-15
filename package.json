@@ -1,7 +1,7 @@
 {
     "name": "resources-manifest-webpack-plugin",
-    "version": "2.0.0",
-    "description": "Emoji loader for webpack",
+    "version": "2.0.1",
+    "description": "Webpack plugin that simplifies asset caching & also updates the Service Worker so that the browser reloads it.",
     "license": "MIT",
     "main": "plugin.js",
     "keywords": [
