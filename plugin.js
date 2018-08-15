@@ -1,13 +1,13 @@
 const fs = require('fs');
 
-class SWPlugin {
+class ResourcesManifestPlugin {
     constructor(config = /\.(js|css)$/, path = '') {
         this.config = config;
         this.path = path;
     }
 
     apply(compiler) {
-        compiler.hooks.emit.tapAsync('SWPlugin', (compilation, cb) => {
+        compiler.hooks.emit.tapAsync('ResourcesManifestPlugin', (compilation, cb) => {
             let assetNames = Object.keys(compilation.assets);
 
             this.createResourcesManifest(assetNames);
@@ -30,7 +30,7 @@ class SWPlugin {
             });
             fs.writeFile(`${this.path}resources-manifest.json`, JSON.stringify(fileNames), (err) => {
                 if (err) {
-                    throw new Error(`[SWPlugin] ${err.toString()}`);
+                    throw new Error(`[ResourcesManifestPlugin] ${err.toString()}`);
                 }
             });
         }
@@ -54,10 +54,10 @@ class SWPlugin {
 
         fs.writeFile("service-worker.js", result, err => {
             if (err) {
-                throw new Error(`[SWPlugin] ${err.toString()}`);
+                throw new Error(`[ResourcesManifestPlugin] ${err.toString()}`);
             }
         })
     }
 }
 
-module.exports = SWPlugin;
+module.exports = ResourcesManifestPlugin;

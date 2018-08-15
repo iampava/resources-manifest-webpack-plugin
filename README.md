@@ -1,4 +1,4 @@
-# service-worker-webpack-plugin
+# resources-manifest-webpack-plugin
 
 Generate a ```resources-manifest.json``` file with the filenames you want to cache & increase the Service-Worker version at the same time, so that the browser reloads it.
 
@@ -18,7 +18,7 @@ PS: it's highly configurable
 ## Installation
 
 ```bash
-$ npm install service-worker-webpack-plugin --save-dev
+$ npm install resources-manifest-webpack-plugin --save-dev
 ```
 
 ## Usage
@@ -32,10 +32,10 @@ You can also configure how the plugin works, as it accepts 2 params:
 
 #### #0 Default
 ```js
-const SWPlugin = require("service-worker-webpack-plugin");
+const ResourcesManifestPlugin = require("resources-manifest-webpack-plugin");
 
 module.exports = {
-    plugins: [new SWPlugin()]
+    plugins: [new ResourcesManifestPlugin()]
 };
 ```
 
@@ -51,11 +51,11 @@ The resulted file will contain a list with the names of all the **.js** and **.c
 
 #### #1 Regex config + different path
 
-You can control what files are intended for caching by passing your own **RegExp** to the SWPlugin. If you want to output the file somewhere else, just pass a string with the path as a second argument.
+You can control what files are intended for caching by passing your own **RegExp** to the ResourcesManifestPlugin. If you want to output the file somewhere else, just pass a string with the path as a second argument.
 
 ```js
 module.exports = {
-    plugins: [new SWPlugin( /\.(js|css|jpg)$/, "dist/" )]
+    plugins: [new ResourcesManifestPlugin( /\.(js|css|jpg)$/, "dist/" )]
 };
 ```
 
@@ -77,7 +77,7 @@ just pass an Object whose values are RegExp's and the keys - the properties from
 
 ```js
 module.exports = {
-    plugins: [new SWPlugin({
+    plugins: [new ResourcesManifestPlugin({
         "SOURCE_CODE": /\.(js|css)$/,
         "OTHER_ASSETS": /\.jpeg?$/
     })]

@@ -1,5 +1,5 @@
 {
-    "name": "service-worker-webpack-plugin",
+    "name": "resources-manifest-webpack-plugin",
     "version": "1.0.0",
     "description": "Emoji loader for webpack",
     "license": "MIT",
@@ -10,7 +10,7 @@
         "service worker",
         "cache"
       ],
-      "repository": "https://github.com/iampava/service-worker-webpack-plugin.git",
-      "bugs": "https://github.com/iampava/service-worker-webpack-plugin/issues",
-      "homepage": "https://github.com/iampava/service-worker-webpack-plugin"
+      "repository": "https://github.com/iampava/resources-manifest-webpack-plugin.git",
+      "bugs": "https://github.com/iampava/resources-manifest-webpack-plugin/issues",
+      "homepage": "https://github.com/iampava/resources-manifest-webpack-plugin"
 }
