@@ -1,0 +1,16 @@
+{
+    "name": "service-worker-webpack-plugin",
+    "version": "1.0.0",
+    "description": "Emoji loader for webpack",
+    "license": "MIT",
+    "main": "plugin.js",
+    "keywords": [
+        "webpack",
+        "plugin",
+        "service worker",
+        "cache"
+      ],
+      "repository": "https://github.com/iampava/service-worker-webpack-plugin.git",
+      "bugs": "https://github.com/iampava/service-worker-webpack-plugin/issues",
+      "homepage": "https://github.com/iampava/service-worker-webpack-plugin"
+}
