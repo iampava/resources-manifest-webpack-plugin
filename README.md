@@ -1,19 +1,16 @@
 # resources-manifest-webpack-plugin
 
-Generate a ```resources-manifest.json``` file with the filenames you want to cache & increase the Service-Worker version at the same time, so that the browser reloads it.
+Generate a ```resources-manifest.json``` file with the filenames you want to cache & update the Service-Worker so that the browser reloads it.
 
 ## Motivation
 
-Recently I wanted to add **offline-support** for a personal project. I wanted full control over the service-worker code - in other words write it myself -  that's why I rejected any sollution which writes it for me. 
+Recently I wanted to add **offline support** for a personal project. I rejected any sollution which writes does the all the work, since I wanted to have full control over the service-worker code - in other words to write it myself.
 
 So, I ran into a problem: how do I know which assets to cache if webpack keeps changing their names? 
 
 That's why I wrote this plugin, to help me with that by creating a ```resources-manifest.json``` file which contains the **filenames** of the assets I want to cache. 
 
-Also, it updates your **service-worker.js** file so that the browser reloads it.
-
-PS: it's highly configurable
-
+Also, it updates the **service-worker.js** file so that the browser reloads it.
 
 ## Installation
 
@@ -39,7 +36,7 @@ module.exports = {
 };
 ```
 
-The resulted file will contain a list with the names of all the **.js** and **.css** files created by webpack and it will be written in the **root of the project**.
+By default the resulted file will contain a list with the names of all the **.js** and **.css** files created by webpack and it will be written in the **root of the project**.
 
 
 ```resources-manifest.json```
@@ -51,7 +48,7 @@ The resulted file will contain a list with the names of all the **.js** and **.c
 
 #### #1 Regex config + different path
 
-You can control what files are intended for caching by passing your own **RegExp** to the ResourcesManifestPlugin. If you want to output the file somewhere else, just pass a string with the path as a second argument.
+You can control what files are intended for caching by passing your own **RegExp** to the ResourcesManifestPlugin. Also, if you want to output the file somewhere else just pass a string - representing the path -as a second argument.
 
 ```js
 module.exports = {
@@ -59,7 +56,7 @@ module.exports = {
 };
 ```
 
-Now the ```resources-manifest.json``` file will be written in the **dist** folder and will contain an array with **.js**, **.css** and **.jpg** file names.
+Now the ```resources-manifest.json``` file will be written in the **dist** folder and will contain an array with the filenames of all the **.js**, **.css** and **.jpg** assets.
 
 
 #### #2 Object config
@@ -73,7 +70,7 @@ Instead of putting all the filenames in one array you can also split them up and
 }
 ```
 
-just pass an Object whose values are RegExp's and the keys - the properties from above. 
+just pass an Object whose values are RegExp's and the keys are the properties from above. 
 
 ```js
 module.exports = {
@@ -87,12 +84,12 @@ module.exports = {
 
 #### ⚠ Service Worker update
 
-Changing just the ```resources-manifest.json``` file, doesn't update the SW in the browser. In order to do this we need to change at least 1 byte in it's code. This plugin helps with that too. With every build, it will search in the ```service-worker.js``` file for the declaration of a constant named **CACHE_VERSION** and will increase it's value. This chance will cause the browser to update the service-worker. Hooray! <3 
+Changing just the ```resources-manifest.json``` file, doesn't update the SW in the browser. In order to do this we need to change at least 1 byte in it's code. This plugin helps with that too. With every build, it will search in the ```service-worker.js``` file for the declaration of a constant named **VERSION** and will increase it's value. This small change is enough for the browser to update the service-worker. Hooray! <3 
 
 Current service-worker:
 
 ```js
-const CACHE_VERSION = 1;
+const VERSION = 1;
 
 self.addEventListener("install", event => {
     // ...
@@ -105,7 +102,7 @@ After build service-worker:
 
 
 ```js
-const CACHE_VERSION = 2;
+const VERSION = 2;
 
 self.addEventListener("install", event => {
     // ...
@@ -114,7 +111,10 @@ self.addEventListener("install", event => {
 // ...
 ```
 
-👍 The rest of the code remains unchanged && the declaration can be anywhere in the file, not necessarily at the top.
+PS:
+* the rest of the service-worker code remains unchanged 
+* the ```const VERSION``` declaration can be anywhere in the file, not necessarily at the top.
+* this: ```const /* random comment */ VERSION = 5;``` will not work so please don't put comments there.
 
 <hr/>
 
