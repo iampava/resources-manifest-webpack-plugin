@@ -1,18 +1,22 @@
 const fs = require('fs');
 
 class ResourcesManifestPlugin {
-    constructor(config = /\.(js|css)$/, path = '') {
+    constructor(config = /\.(js|css)$/, path = '', maxSize = Infinity) {
         this.config = config;
         this.path = path;
+        this.maxSize = (maxSize === Infinity) ? maxSize : Number(maxSize) * 1000;
     }
 
     apply(compiler) {
         compiler.hooks.emit.tapAsync(
             'ResourcesManifestPlugin',
             (compilation, cb) => {
-                let assetNames = Object.keys(compilation.assets);
+                let assetInfos = Object.keys(compilation.assets).map(name => ({
+                    name,
+                    size: compilation.assets[name].size()
+                }));
 
-                this.createResourcesManifest(assetNames);
+                this.createResourcesManifest(assetInfos);
                 this.incrementServiceWorkerVersion();
 
                 cb();
@@ -20,24 +24,26 @@ class ResourcesManifestPlugin {
         );
     }
 
-    createResourcesManifest(assetNames) {
+    _filterAssetNames(regExp, assetInfos) {
+        return assetInfos.filter(assetInfo =>
+            regExp.test(assetInfo.name) && assetInfo.size < this.maxSize
+        ).map(assetInfo => assetInfo.name);
+    }
+
+    createResourcesManifest(assetInfos) {
         if (this.config instanceof RegExp) {
-            let fileNames = assetNames.filter(assetName =>
-                this.config.test(assetName)
-            );
+            let fileNames = this._filterAssetNames(this.config, assetInfos);
+
             fs.writeFileSync(
                 `${this.path}resources-manifest.json`,
-                JSON.stringify(fileNames),
-                {
+                JSON.stringify(fileNames), {
                     encoding: 'utf-8'
                 }
             );
         } else {
             let fileNames = {};
             Object.keys(this.config).forEach(key => {
-                fileNames[key] = assetNames.filter(assetName =>
-                    this.config[key].test(assetName)
-                );
+                fileNames[key] = this._filterAssetNames(this.config[key], assetInfos);
             });
             fs.writeFile(
                 `${this.path}resources-manifest.json`,

@@ -1,121 +1,170 @@
+
 # resources-manifest-webpack-plugin
 
-Generate a ```resources-manifest.json``` file with the filenames you want to cache & update the Service-Worker so that the browser reloads it.
+  
+
+Generate a ```resources-manifest.json``` file with the filenames you want to cache & **update** the Service-Worker so that the browser reloads it.
+
+  
 
 ## Motivation
 
-Recently I wanted to add **offline support** for a personal project. I rejected any sollution which writes does the all the work, since I wanted to have full control over the service-worker code - in other words to write it myself.
+  
 
-So, I ran into a problem: how do I know which assets to cache if webpack keeps changing their names? 
+Recently I wanted to add **offline support** for a personal project. I rejected any sollution which does the all the work, since I wanted to have full control over the service-worker code - in other words to write it myself.
 
-That's why I wrote this plugin, to help me with that by creating a ```resources-manifest.json``` file which contains the **filenames** of the assets I want to cache. 
+  
+
+So, I ran into a problem: how do I know which assets to cache if webpack keeps changing their names?
+
+  
+
+That's why I wrote this plugin, to help me with that by creating a ```resources-manifest.json``` file which contains the **filenames** of the assets I want to cache.
+
+  
 
 Also, it updates the **service-worker.js** file so that the browser reloads it.
 
+  
+
 ## Installation
 
+  
+
 ```bash
+
 $ npm install resources-manifest-webpack-plugin --save-dev
+
 ```
+
+  
 
 ## Usage
 
-In order to use this plugin, you need to add it to your **webpack config**. 
+  
 
-You can also configure how the plugin works, as it accepts 2 params:
-
-* **first param**: ```undefined```, ```RegExp``` or an ```Object```
-* **second param**: a string representing where to write the output file
-
-#### #0 Default
+In order to use this plugin, add it to your **webpack config**.
 ```js
-const ResourcesManifestPlugin = require("resources-manifest-webpack-plugin");
+const  ResourcesManifestPlugin = require("resources-manifest-webpack-plugin");
 
-module.exports = {
-    plugins: [new ResourcesManifestPlugin()]
+module.exports  = {
+  plugins: [new  ResourcesManifestPlugin()]
 };
 ```
+  
 
-By default the resulted file will contain a list with the names of all the **.js** and **.css** files created by webpack and it will be written in the **root of the project**.
+## API
 
+  
+
+### ```new ResourcesManifestPlugin([config], [path], [maxSize] );```
+
+  
+
+#### config
+
+Type: `RegExp` or `Object` <br/>
+
+Default:
+
+```
+/\.(js|css)$/
+```
+
+##### RegExp
+
+The resulted file will contain a list of names which match the RegExp.
 
 ```resources-manifest.json```
+```json
 
-```json 
 ["0.bundle.js","1.cdea1276.css","1.bundle.js","bundle.js"]
+
 ```
-
-
-#### #1 Regex config + different path
-
-You can control what files are intended for caching by passing your own **RegExp** to the ResourcesManifestPlugin. Also, if you want to output the file somewhere else just pass a string - representing the path -as a second argument.
-
-```js
-module.exports = {
-    plugins: [new ResourcesManifestPlugin( /\.(js|css|jpg)$/, "dist/" )]
-};
-```
-
-Now the ```resources-manifest.json``` file will be written in the **dist** folder and will contain an array with the filenames of all the **.js**, **.css** and **.jpg** assets.
-
-
-#### #2 Object config
-
+##### Object
+  
 Instead of putting all the filenames in one array you can also split them up and apply different cache policies to each category. For example, if you'd like to create the following ```resources-manifest.json``` file:
 
+  
+
 ```json
+
 {
-    "SOURCE_CODE": ["bundle.js", "0.bundle.js", "1.cdea1276.css"],
-    "OTHER_ASSETS" : ["assets/logo.jpg"]
+  "SOURCE_CODE": ["bundle.js", "0.bundle.js", "1.cdea1276.css"],
+  "OTHER_ASSETS" : ["assets/logo.jpg"]
 }
 ```
 
-just pass an Object whose values are RegExp's and the keys are the properties from above. 
+just pass an Object whose values are RegExp's and the keys are the properties from above.
 
+  
+`webpack.config.js`
 ```js
-module.exports = {
-    plugins: [new ResourcesManifestPlugin({
-        "SOURCE_CODE": /\.(js|css)$/,
-        "OTHER_ASSETS": /\.jpeg?$/
-    })]
+
+module.exports  = {
+  plugins: [new  ResourcesManifestPlugin({
+    "SOURCE_CODE": /\.(js|css)$/,
+    "OTHER_ASSETS": /\.jpeg?$/
+  })]
 };
 ```
 
+#### path
 
-#### ⚠ Service Worker update
+Type: `string`
 
-Changing just the ```resources-manifest.json``` file, doesn't update the SW in the browser. In order to do this we need to change at least 1 byte in it's code. This plugin helps with that too. With every build, it will search in the ```service-worker.js``` file for the declaration of a constant named **VERSION** and will increase it's value. This small change is enough for the browser to update the service-worker. Hooray! <3 
+Default:
+```
+''
+```
+
+Where to output the `resources-manifest.json` file. By default in the root of the project.
+
+#### maxSize
+Type: `number` 
+
+Default:
+```
+Infinity
+```
+
+Filter just those assets which are under the specified size in **kilobytes**.
+
+
+### ⚠ Service Worker update
+
+Changing just the ```resources-manifest.json``` file, doesn't update the SW in the browser. In order to do this we need to change at least 1 byte in it's code. This plugin helps with that too. With every build, it will search in the ```service-worker.js``` file for the declaration of a constant named **VERSION** and will increase it's value. This small change is enough for the browser to update the service-worker. Hooray! <3
 
 Current service-worker:
 
 ```js
-const VERSION = 1;
-
-self.addEventListener("install", event => {
-    // ...
-})
+const  VERSION  =  1;
+self.addEventListener("install", event  => {
+	// ...
+});
 
 // ...
 ```
-
+ 
 After build service-worker:
 
-
 ```js
-const VERSION = 2;
-
-self.addEventListener("install", event => {
-    // ...
-})
+const  VERSION  =  2;
+self.addEventListener("install", event  => {
+	// ...
+});
 
 // ...
 ```
 
 PS:
-* the rest of the service-worker code remains unchanged 
+
+* the rest of the service-worker code remains unchanged
+
 * the ```const VERSION``` declaration can be anywhere in the file, not necessarily at the top.
+
 * this: ```const /* random comment */ VERSION = 5;``` will not work so please don't put comments there.
 
 <hr/>
 
-<p align="center"> Made with ❤ by <a href="https://iampava.com"> Pava </a> </p>
+<p  align="center"> Coded with ❤ by <a  href="https://iampava.com"> Pava </a>  </p>
