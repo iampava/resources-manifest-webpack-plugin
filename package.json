@@ -2,6 +2,11 @@
     "name": "resources-manifest-webpack-plugin",
     "version": "3.0.0",
     "description": "Webpack plugin that simplifies asset caching & also updates the Service Worker so that the browser reloads it.",
+    "author": {
+      "name": "Alexandru Pavaloi",
+      "email": "pava@iampava.com",
+      "url": "https://iampava.com"
+    },
     "license": "MIT",
     "main": "plugin.js",
     "keywords": [

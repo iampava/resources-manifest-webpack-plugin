@@ -1,9 +1,8 @@
 const fs = require('fs');
 
 class ResourcesManifestPlugin {
-    constructor(config = /\.(js|css)$/, path = '', swPath, maxSize = Infinity) {
+    constructor(config = /\.(js|css)$/, swPath, maxSize = Infinity) {
         this.config = config;
-        this.path = path;
         this.swPath = swPath || 'service-worker.js';
         this.maxSize = maxSize === Infinity ? maxSize : Number(maxSize) * 1000;
     }

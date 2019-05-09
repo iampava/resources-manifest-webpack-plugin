@@ -3,7 +3,7 @@
 
   
 
-Generate a ```resources-manifest.json``` file with the filenames you want to cache & **update** the Service-Worker so that the browser reloads it.
+Webpack plugin that generates a ```resources-manifest.json``` on the fly with the filenames you want to cache & **updates** the `service-worker.js` code so that the browser reloads it.
 
   
 
@@ -11,19 +11,15 @@ Generate a ```resources-manifest.json``` file with the filenames you want to cac
 
   
 
-Recently I wanted to add **offline support** for a personal project. I rejected any sollution which does the all the work, since I wanted to have full control over the service-worker code - in other words to write it myself.
+Recently I wanted to add **offline support** for a personal project. I rejected any sollution which does all the work, since I wanted to have full control over the service-worker code - in other words to write it myself.
 
   
 
-So, I ran into a problem: how do I know which assets to cache if webpack keeps changing their names?
+So, I ran into a problem: how do I know which assets to cache if webpack keeps changing their names via hashes?
 
   
 
-That's why I wrote this plugin, to help me with that by creating a ```resources-manifest.json``` file which contains the **filenames** of the assets I want to cache.
-
-  
-
-Also, it updates the **service-worker.js** file so that the browser reloads it.
+That's why I wrote this plugin, which creates a ```resources-manifest.json``` file which contains the **filenames** of the assets I want to cache. Also, it updates the **service-worker.js** file so that the browser reloads it, thus giving users the latest version.
 
   
 
@@ -65,11 +61,7 @@ module.exports  = {
 
 Type: `RegExp` or `Object` <br/>
 
-Default:
-
-```
-/\.(js|css)$/
-```
+Default: ```/\.(js|css)$/```
 
 ##### RegExp
 
@@ -109,24 +101,10 @@ module.exports  = {
 };
 ```
 
-#### path
-
-Type: `string`
-
-Default:
-```
-''
-```
-
-Where to output the `resources-manifest.json` file. By default in the root of the project.
-
 #### swPath
 Type: `string`
 
-Default:
-```
-''
-```
+Default: ```''```
 
 Where to read the `service-worker.js` file from. By default it will be the root of your project.
 
@@ -134,17 +112,14 @@ Where to read the `service-worker.js` file from. By default it will be the root 
 #### maxSize
 Type: `number` 
 
-Default:
-```
-Infinity
-```
+Default: ```Infinity```
 
 Filter just those assets which are under the specified size in **kilobytes**.
 
 
 ### ⚠ Service Worker update
 
-Changing just the ```resources-manifest.json``` file, doesn't update the SW in the browser. In order to do this we need to change at least 1 byte in it's code. This plugin helps with that too. With every build, it will search in the ```service-worker.js``` file for the declaration of a constant named **VERSION** and will increase it's value. This small change is enough for the browser to update the service-worker. Hooray! <3
+Changing just the ```resources-manifest.json``` file, doesn't update the SW in the browser. In order to do this we need to change at least 1 byte in it's code. This plugin helps with that too. With every build, it will search in the ```service-worker.js``` file for the declaration of a constant named **VERSION** and will increase it's value. This small change is enough for the browser to update the service-worker. Hooray! ❤
 
 Current service-worker:
 
