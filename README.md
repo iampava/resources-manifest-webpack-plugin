@@ -104,9 +104,9 @@ module.exports  = {
 #### swPath
 Type: `string`
 
-Default: ```''```
+Default: ```'service-worker.js'```
 
-Where to read the `service-worker.js` file from. By default it will be the root of your project.
+The path to the `service-worker.js` file. By default it will look in the root of your project.
 
 
 #### maxSize
