@@ -19,7 +19,7 @@ So, I ran into a problem: how do I know which assets to cache if webpack keeps c
 
   
 
-That's why I wrote this plugin, which creates a ```resources-manifest.json``` file which contains the **filenames** of the assets I want to cache. Also, it updates the **service-worker.js** file so that the browser reloads it, thus giving users the latest version.
+That's why I wrote this plugin, which creates a ```resources-manifest.json``` file with the **filenames** of the assets I want to cache. Also, it updates the **service-worker.js** file so that the browser reloads it, thus giving users the latest version.
 
   
 
@@ -53,7 +53,7 @@ module.exports  = {
 
   
 
-### ```new ResourcesManifestPlugin([config], [path], [swPath], [maxSize] );```
+### ```new ResourcesManifestPlugin([config], [swPath], [maxSize] );```
 
   
 
