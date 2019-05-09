@@ -11,7 +11,7 @@ Webpack plugin that generates a ```resources-manifest.json``` on the fly with th
 
   
 
-Recently I wanted to add **offline support** for a personal project. I rejected any sollution which does all the work, since I wanted to have full control over the service worker's code - in other words to write it myself.
+Recently I wanted to add **offline support** for a personal project. I rejected any solution which does all the work, since I wanted to have full control over the service worker's code - in other words to write it myself.
 
   
 
