@@ -57,7 +57,7 @@ module.exports  = {
 
   
 
-### ```new ResourcesManifestPlugin([config], [path], [maxSize] );```
+### ```new ResourcesManifestPlugin([config], [path], [swPath], [maxSize] );```
 
   
 
@@ -119,6 +119,17 @@ Default:
 ```
 
 Where to output the `resources-manifest.json` file. By default in the root of the project.
+
+#### swPath
+Type: `string`
+
+Default:
+```
+''
+```
+
+Where to read the `service-worker.js` file from. By default it will be the root of your project.
+
 
 #### maxSize
 Type: `number` 

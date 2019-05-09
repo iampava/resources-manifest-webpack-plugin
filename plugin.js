@@ -1,10 +1,11 @@
 const fs = require('fs');
 
 class ResourcesManifestPlugin {
-    constructor(config = /\.(js|css)$/, path = '', maxSize = Infinity) {
+    constructor(config = /\.(js|css)$/, path = '', swPath, maxSize = Infinity) {
         this.config = config;
         this.path = path;
-        this.maxSize = (maxSize === Infinity) ? maxSize : Number(maxSize) * 1000;
+        this.swPath = swPath || 'service-worker.js';
+        this.maxSize = maxSize === Infinity ? maxSize : Number(maxSize) * 1000;
     }
 
     apply(compiler) {
@@ -16,8 +17,8 @@ class ResourcesManifestPlugin {
                     size: compilation.assets[name].size()
                 }));
 
-                this.createResourcesManifest(assetInfos);
-                this.incrementServiceWorkerVersion();
+                this.createResourcesManifest(assetInfos, compilation);
+                this.incrementServiceWorkerVersion(compilation);
 
                 cb();
             }
@@ -25,45 +26,50 @@ class ResourcesManifestPlugin {
     }
 
     _filterAssetNames(regExp, assetInfos) {
-        return assetInfos.filter(assetInfo =>
-            regExp.test(assetInfo.name) && assetInfo.size < this.maxSize
-        ).map(assetInfo => assetInfo.name);
+        return assetInfos
+            .filter(
+                assetInfo =>
+                    regExp.test(assetInfo.name) && assetInfo.size < this.maxSize
+            )
+            .map(assetInfo => assetInfo.name);
     }
 
-    createResourcesManifest(assetInfos) {
+    createResourcesManifest(assetInfos, compilation) {
         if (this.config instanceof RegExp) {
             let fileNames = this._filterAssetNames(this.config, assetInfos);
 
-            fs.writeFileSync(
-                `${this.path}resources-manifest.json`,
-                JSON.stringify(fileNames), {
-                    encoding: 'utf-8'
-                }
-            );
+            compilation.assets['resources-manifest.json'] = {
+                source: () => JSON.stringify(fileNames),
+                size: () => JSON.stringify(fileNames).length
+            };
         } else {
             let fileNames = {};
             Object.keys(this.config).forEach(key => {
-                fileNames[key] = this._filterAssetNames(this.config[key], assetInfos);
+                fileNames[key] = this._filterAssetNames(
+                    this.config[key],
+                    assetInfos
+                );
             });
-            fs.writeFile(
-                `${this.path}resources-manifest.json`,
-                JSON.stringify(fileNames),
-                err => {
-                    if (err) {
-                        throw new Error(
-                            `[ResourcesManifestPlugin] ${err.toString()}`
-                        );
-                    }
-                }
-            );
+
+            compilation.assets['resources-manifest.json'] = {
+                source: () => JSON.stringify(fileNames),
+                size: () => JSON.stringify(fileNames).length
+            };
         }
     }
 
-    incrementServiceWorkerVersion() {
+    incrementServiceWorkerVersion(compilation) {
         const MATCH = 'const VERSION';
-        const swTemplate = fs
-            .readFileSync('service-worker.js', 'utf-8')
-            .replace(/const *VERSION/, MATCH);
+        let swTemplate = '';
+        try {
+            swTemplate = fs
+                .readFileSync(this.swPath, 'utf-8')
+                .replace(/const *VERSION/, MATCH);
+        } catch (e) {
+            return compilation.errors.push(
+                `resource-manifest-webpack-plugin: ${e}`
+            );
+        }
 
         let result = '';
 
@@ -79,7 +85,12 @@ class ResourcesManifestPlugin {
 
         result += swTemplate.substr(indexEnd + 1);
 
-        fs.writeFile('service-worker.js', result, err => {
+        compilation.assets['service-worker.js'] = {
+            source: () => result,
+            size: () => result.length
+        };
+
+        fs.writeFile(this.swPath, result, err => {
             if (err) {
                 throw new Error(`[ResourcesManifestPlugin] ${err.toString()}`);
             }
