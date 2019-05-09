@@ -3,7 +3,7 @@
 
   
 
-Webpack plugin that generates a ```resources-manifest.json``` on the fly with the filenames you want to cache & **updates** the `service-worker.js` code so that the browser reloads it.
+Webpack plugin that generates a ```resources-manifest.json``` on the fly with the filenames you want to cache & **updates** the service worker's code so that the browser reloads it.
 
   
 
@@ -11,7 +11,7 @@ Webpack plugin that generates a ```resources-manifest.json``` on the fly with th
 
   
 
-Recently I wanted to add **offline support** for a personal project. I rejected any sollution which does all the work, since I wanted to have full control over the service-worker code - in other words to write it myself.
+Recently I wanted to add **offline support** for a personal project. I rejected any sollution which does all the work, since I wanted to have full control over the service worker's code - in other words to write it myself.
 
   
 
@@ -19,7 +19,7 @@ So, I ran into a problem: how do I know which assets to cache if webpack keeps c
 
   
 
-That's why I wrote this plugin, which creates a ```resources-manifest.json``` file with the **filenames** of the assets I want to cache. Also, it updates the **service-worker.js** file so that the browser reloads it, thus giving users the latest version.
+That's why I wrote this plugin, which creates a ```resources-manifest.json``` file with the **filenames** of the assets I want to cache. Also, it updates the service worker file so that the browser reloads it, thus giving users the latest version.
 
   
 
@@ -106,7 +106,7 @@ Type: `string`
 
 Default: ```'service-worker.js'```
 
-The path to the `service-worker.js` file. By default it will look in the root of your project.
+The path to the Service Worker file. By default it will look in the root of your project for a file named `service-worker.js`.
 
 
 #### maxSize
@@ -119,9 +119,9 @@ Filter just those assets which are under the specified size in **kilobytes**.
 
 ### ⚠ Service Worker update
 
-Changing just the ```resources-manifest.json``` file, doesn't update the SW in the browser. In order to do this we need to change at least 1 byte in it's code. This plugin helps with that too. With every build, it will search in the ```service-worker.js``` file for the declaration of a constant named **VERSION** and will increase it's value. This small change is enough for the browser to update the service-worker. Hooray! ❤
+Changing just the ```resources-manifest.json``` file, doesn't update the SW in the browser. In order to do this we need to change at least 1 byte in it's code. This plugin helps with that too. With every build, it will search your service worker for the declaration of a constant named **VERSION** and will increase it's value. This small change is enough for the browser to notice the change! ❤
 
-Current service-worker:
+Current service worker:
 
 ```js
 const  VERSION  =  1;
@@ -132,7 +132,7 @@ self.addEventListener("install", event  => {
 // ...
 ```
  
-After build service-worker:
+After build:
 
 ```js
 const  VERSION  =  2;
@@ -145,7 +145,7 @@ self.addEventListener("install", event  => {
 
 PS:
 
-* the rest of the service-worker code remains unchanged
+* the rest of the service worker code remains unchanged
 
 * the ```const VERSION``` declaration can be anywhere in the file, not necessarily at the top.
 
