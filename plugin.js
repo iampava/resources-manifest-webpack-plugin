@@ -1,9 +1,10 @@
 const fs = require('fs');
 
 class ResourcesManifestPlugin {
-    constructor(config = /\.(js|css)$/, swPath, maxSize = Infinity) {
-        this.config = config;
-        this.swPath = swPath || 'service-worker.js';
+    constructor({ match = /\.(js|css)$/, swPath = 'service-worker.js', maxSize = Infinity, versionHandler = 'INCREMENT' } = {}) {
+        this.config = match;
+        this.versionHandler = versionHandler
+        this.swPath = swPath;
         this.maxSize = maxSize === Infinity ? maxSize : Number(maxSize) * 1000;
     }
 
@@ -16,8 +17,8 @@ class ResourcesManifestPlugin {
                     size: compilation.assets[name].size()
                 }));
 
-                this.createResourcesManifest(assetInfos, compilation);
-                this.incrementServiceWorkerVersion(compilation);
+                let resourcesManifest = this.createResourcesManifest(assetInfos, compilation);
+                this.changeServiceWorkerVersion(resourcesManifest, compilation);
 
                 cb();
             }
@@ -54,10 +55,12 @@ class ResourcesManifestPlugin {
                 source: () => JSON.stringify(fileNames),
                 size: () => JSON.stringify(fileNames).length
             };
+
+            return fileNames;
         }
     }
 
-    incrementServiceWorkerVersion(compilation) {
+    changeServiceWorkerVersion(resourcesManifest, compilation) {
         const MATCH = 'const VERSION';
         let swTemplate = '';
         try {
@@ -77,10 +80,15 @@ class ResourcesManifestPlugin {
 
         result += swTemplate.substr(0, indexStart);
 
-        const currentVersion = Number(
-            swTemplate.substring(indexStart, indexEnd).split(/=|;/)[1]
-        );
-        result += `const VERSION = ${currentVersion + 1};`;
+        if (this.versionHandler === 'INCREMENT') {
+            const currentVersion = Number(
+                swTemplate.substring(indexStart, indexEnd).split(/=|;/)[1]
+            );
+
+            result += `const VERSION = ${currentVersion + 1};`;
+        } else {
+            result += `const VERSION = "${this.versionHandler(resourcesManifest)};`;
+        }
 
         result += swTemplate.substr(indexEnd + 1);
 

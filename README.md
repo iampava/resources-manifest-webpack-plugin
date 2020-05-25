@@ -53,11 +53,11 @@ module.exports  = {
 
   
 
-### ```new ResourcesManifestPlugin([config], [swPath], [maxSize] );```
+### ```new ResourcesManifestPlugin({ [match], [swPath], [maxSize], [versionHandler] });```
 
   
 
-#### config
+#### match
 
 Type: `RegExp` or `Object` <br/>
 
@@ -69,9 +69,7 @@ The resulted file will contain a list of names which match the RegExp.
 
 ```resources-manifest.json```
 ```json
-
 ["0.bundle.js","1.cdea1276.css","1.bundle.js","bundle.js"]
-
 ```
 ##### Object
   
@@ -80,7 +78,6 @@ Instead of putting all the filenames in one array you can also split them up and
   
 
 ```json
-
 {
   "SOURCE_CODE": ["bundle.js", "0.bundle.js", "1.cdea1276.css"],
   "OTHER_ASSETS" : ["assets/logo.jpg"]
@@ -90,13 +87,15 @@ Instead of putting all the filenames in one array you can also split them up and
 just pass an Object whose values are RegExp's and the keys are the properties from above.
 
   
-`webpack.config.js`
 ```js
+// webpack.config.js
 
 module.exports  = {
   plugins: [new  ResourcesManifestPlugin({
-    "SOURCE_CODE": /\.(js|css)$/,
-    "OTHER_ASSETS": /\.jpeg?$/
+    match: {
+      "SOURCE_CODE": /\.(js|css)$/,
+      "OTHER_ASSETS": /\.jpeg?$/
+    }
   })]
 };
 ```
@@ -108,6 +107,16 @@ Default: ```'service-worker.js'```
 
 The path to the Service Worker file. By default it will look in the root of your project for a file named `service-worker.js`.
 
+```js
+// webpack.config.js
+
+const { resolve } = require('path');
+module.exports  = {
+  plugins: [new  ResourcesManifestPlugin({
+    swPath: resolve(__dirname, 'static/service-worker.js')
+  })]
+};
+```
 
 #### maxSize
 Type: `number` 
@@ -116,38 +125,68 @@ Default: ```Infinity```
 
 Filter just those assets which are under the specified size in **kilobytes**.
 
+```js
+module.exports  = {
+  plugins: [new  ResourcesManifestPlugin({
+    maxSize: 5000 // 5MB
+  })]
+};
+```
 
-### ⚠ Service Worker update
+#### versionHandler
+Type: `String` or `Function`
 
-Changing just the ```resources-manifest.json``` file, doesn't update the SW in the browser. In order to do this we need to change at least 1 byte in it's code. This plugin helps with that too. With every build, it will search your service worker for the declaration of a constant named **VERSION** and will increase it's value. This small change is enough for the browser to notice the change! ❤
+Default: `INCREMENT`
 
-Current service worker:
+Changing just the ```resources-manifest.json``` file, doesn't update the SW in the browser. In order to do this we need to change at least 1 byte in it's code. This plugin helps with that too. With every build, it will search your service worker for the declaration of a constant named **VERSION** and will modify it's value. This small change is enough for the browser to notice the change!
+
+The default strategy is `INCREMENT`, meaning we add `+1` to `VERSION`. But, you can change this by providing a **custom Function** which we'll run when setting the new value. The Function will receive one parameter, the content of the generated `resources-manifest.json` file, so either `Array|Object`.
+
+1. `INCREMENT`: from this
 
 ```js
+// service-worker.js
+
 const  VERSION  =  1;
 self.addEventListener("install", event  => {
 	// ...
 });
-
-// ...
 ```
  
-After build:
+to this:
 
 ```js
+// service-worker.js
+
 const  VERSION  =  2;
 self.addEventListener("install", event  => {
 	// ...
 });
+```
 
-// ...
+2. By providing a **custom Function** you can do more advanced stuff, like generating a **unique VERSION** based on the names of the matched files. If the names are the same, the SW will not be updated.
+
+```js
+// webpack.config.js
+const md5 = require('md5');
+
+module.exports  = {
+  plugins: [new  ResourcesManifestPlugin({
+     match: {
+      TO_CACHE: /app.+\.(js|css)$/
+    },
+    versionHandler(resourcesManifest) {
+      return `"${md5(resourcesManifest.TO_CACHE.join(' '))}"`;
+    }
+  })]
+};
 ```
 
 PS:
 
 * the rest of the service worker code remains unchanged
 
-* the ```const VERSION``` declaration can be anywhere in the file, not necessarily at the top.
+* the ```const VERSION``` declaration can be anywhere in the file, not necessarily at the top. (although I recommend putting it at the top)
 
 * this: ```const /* random comment */ VERSION = 5;``` will not work so please don't put comments there.
 
