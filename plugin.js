@@ -87,7 +87,7 @@ class ResourcesManifestPlugin {
 
             result += `const VERSION = ${currentVersion + 1};`;
         } else {
-            result += `const VERSION = "${this.versionHandler(resourcesManifest)};`;
+            result += `const VERSION = ${this.versionHandler(resourcesManifest)};`;
         }
 
         result += swTemplate.substr(indexEnd + 1);
